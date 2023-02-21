@@ -1,5 +1,11 @@
 import { ethers } from "hardhat";
 
+async function sleep(ms) {
+  return new Promise((resolve) => {
+      setTimeout(() => resolve(), ms);
+  });
+}
+
 async function main() {
   const VRF = await ethers.getContractFactory("VRFv2Consumer");
   const VRFv2Oracle = await VRF.deploy(10092);
@@ -7,20 +13,14 @@ async function main() {
   console.log(`VRFv2 contract deployed to ${VRFv2Oracle.address}`);
 
 
-  //////////////////  CONTRACT FUNCTIONS  //////////////////////////
-  const [player1, player2, player3] = await ethers.getSigners();
+  await sleep(45 * 1000);
+  await hre.run("verify:verify", {
+    address: VRFv2Oracle.address,
+    constructorArguments: [10092],
+  });
 
-  /// ADD PLAYER
-  const signUpPlayer = await VRFv2Oracle.approvePlayers(player2.address);
-  console.log(`${player2.address} approved successfully!`);
+console.log('CONTRACT VERIFIED')
 
-  /// GENERATE RANDOM WINNER
-  await VRFv2Oracle.generateRandomWinner();
-
-  /// VIEW WINNER
-  const winner = await VRFv2Oracle.viewWinner();
-  //console.log(`Winner is: ${winner}`);
-  
 }
 
 // We recommend this pattern to be able to use async/await everywhere
